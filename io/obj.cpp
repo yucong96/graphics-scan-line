@@ -77,29 +77,26 @@ void Object::obj_fill_mat(ifstream &input) {
 			vt_idx++;
 		}
 		else if (word == "f" || word == "F") {
-			//only triangle mesh supported
-			string pair[3], test;
-			instream >> pair[0] >> pair[1] >> pair[2] >> test;
-			if (!test.empty() || !instream.eof()) {
-				report_err("only triangle mesh supported");
-			}
-			//get vertex id in the this triangle face
-			for (size_t i = 0; i < 3; ++i) {
-				string vertex_str = pair[i].substr(0, pair[i].find('/'));
+			while(true) {
+				string pair;
+				instream >> pair;
+				if (pair.empty()) break;
+			
+				string vertex_str = pair.substr(0, pair.find('/'));
 				long unsigned int v_index;
 				sscanf_s(vertex_str.c_str(), "%lu", &v_index);
 				v_index--; // for .obj, index start from 1
-				f_mat(i, f_idx) = v_index;
+				f_mat[f_idx].push_back(v_index);
 				if (v_index >= v_num) {
 					report_err("vertex index in face exceed limit");
 				}
 
-				string vn_str = pair[i].substr(pair[i].rfind('/') + 1, pair[i].size());
+				string vn_str = pair.substr(pair.rfind('/') + 1, pair.size());
 				if (vn_str.size() == 0) continue;
 				long unsigned int vn_index;
 				sscanf_s(vn_str.c_str(), "%lu", &vn_index);
 				vn_index--;
-				fn_mat(i, f_idx) = vn_index;
+				fn_mat[f_idx].push_back(vn_index);
 				if (vn_index >= vn_num) {
 					report_err("vertex normal index in face exceed limit");
 				}
@@ -121,15 +118,15 @@ void Object::obj2tri(const string &obj_file) {
 
 	v_mat.resize(4, v_num);
 	v_out_mat.resize(4, v_num);
-	f_mat.resize(3, f_num);
+	f_mat.resize(f_num);
 	vn_mat.resize(3, vn_num);
 	vt_mat.resize(3, vt_num);
-	fn_mat.resize(3, f_num);
+	fn_mat.resize(f_num);
 
 	obj_fill_mat(input);
 
 #ifdef RAND_FACE_COLOR
-	Vector3f v_mat_max = v_mat.block(0, 0, 3, v_num).cwiseAbs().rowwise().maxCoeff();
+	/*Vector3f v_mat_max = v_mat.block(0, 0, 3, v_num).cwiseAbs().rowwise().maxCoeff();
 	f_color.resize(3, f_num);
 	for (size_t i = 0; i < f_num; i++) {
 		size_t v1_idx = f_mat(0, i);
@@ -140,7 +137,7 @@ void Object::obj2tri(const string &obj_file) {
 			f_color(j, i) = (int)((f_avg[j] / v_mat_max[j] + 0.5) * 255);
 			f_color(1, i) = 0;
 		}
-	}
+	}*/
 #endif
 }
 

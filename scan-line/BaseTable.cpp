@@ -21,5 +21,12 @@ int BaseTable::transfer_to_pixel_pos(const Vector3f& point, const string& mode) 
 	}
 }
 
-
+double BaseTable::transfer_to_real_pos(const int val, const string& mode) {
+	if (mode == "x") {
+		return val*d_width + left_bound;
+	}
+	if (mode == "y") {
+		return val * d_height + bottom_bound;
+	}
+}
 

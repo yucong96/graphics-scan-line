@@ -1,6 +1,6 @@
 #include "head.h"
 #include "io/obj.h"
-#include "scan-line-zbuffer/scan-line-zbuffer.h"
+#include "scan-line/scan-line.h"
 #include "opengl/View.h"
 
 using namespace std;
@@ -12,7 +12,7 @@ int height = 600;
 View view;
 Object obj;
 StaticTable s_table;
-ActivateTable a_table;
+ActivateTable4ISL a_table;
 
 void init(const string filepath)
 {
@@ -38,6 +38,10 @@ void init(const string filepath)
 	}
 	GLfloat _near = 0, _far = 25;
 	view.set_radius(bound_box.maxCoeff() * 2.0);
+	view.set_alpha(50 * PI / 36);
+	view.set_phi(3 * PI / 36);
+	glMatrixMode(GL_PROJECTION);
+	gluOrtho2D(0, width-1, 0, height-1);
 	
 	glMatrixMode(GL_MODELVIEW);
 	gluLookAt(view.eye[0], view.eye[1], view.eye[2], view.center[0], view.center[1], view.center[2], view.up[0], view.up[1], view.up[2]);
@@ -50,14 +54,15 @@ void init(const string filepath)
 
 	s_table = StaticTable(left, right, bottom, top, _near, _far, width, height);
 	s_table.add_obj(obj);
-	a_table = ActivateTable(s_table);
+	a_table = ActivateTable4ISL(s_table);
 	a_table.background_color = background;
-	a_table.traverse(s_table, view);
-
+	a_table.traverse_display(s_table, view);
+	glFlush();
 	return;
 }
 
 void set_view() {
+	cout << view.alpha / PI * 36 << " " << view.phi / PI * 36 << endl;
 	glMatrixMode(GL_MODELVIEW);
 	gluLookAt(view.eye[0], view.eye[1], view.eye[2], view.center[0], view.center[1], view.center[2], view.up[0], view.up[1], view.up[2]);
 	MatrixXf model_mat;
@@ -70,14 +75,13 @@ void set_view() {
 	s_table.reset();
 	s_table.add_obj(obj);
 	a_table.reset();
-	a_table.traverse(s_table, view);
+	a_table.traverse_display(s_table, view);
+	glFlush();
 }
 
 void display(void)
 {
 	glClear(GL_COLOR_BUFFER_BIT);
-	a_table.display();
-	glFlush();
 	return;
 }
 
@@ -100,14 +104,14 @@ void keyboard(unsigned char key, int x, int y)
 		break;
 	}
 	set_view();
-	display();
+	//display();
 }
 
 int main(int argc, char *argv[])
 {
 	string filepath;
 	if (argc == 1) {
-		filepath = "models/airplane.obj";
+		filepath = "models/cube.obj";
 	}
 	if (argc == 2) {
 		filepath = argv[1];

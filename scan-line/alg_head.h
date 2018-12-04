@@ -8,6 +8,9 @@
 
 #include <Eigen/Dense>
 
+#define FREEGLUT_STATIC
+#include <GL/freeglut.h>
+
 #include "../io/obj.h"
 #include "../ds/BiList.h"
 
@@ -15,21 +18,37 @@ struct Color {
 	unsigned char r, g, b;
 };
 
+inline bool equal(double a, double b) {
+	if (a < b + 1e-5 && b < a + 1e-5) {
+		return true;
+	}
+	else return false;
+}
+
+struct EdgeNode;
+struct PolyNode;
+struct ActivatePolyNode;
+struct ActivateEdgeNode;
+struct Interval;
+
 struct EdgeNode {
 	double x;	// for the top point
 	double dx;	// dx in two adjacent scanning line
 	int cy;		// cross scanning line num in y direction
 	int y;
 	double z;	// for the top point
+	PolyNode* poly_ptr;
 	EdgeNode *prev, *next;
+	void reset() {}
 };
 
 struct PolyNode {
 	double a, b, c, d;	// plane parameter
+	int y;
 	int cy;				// cross scanning line num in y direction
 	Color color;
-	std::string type;
-	EdgeNode *edge1_ptr, *edge2_ptr, *edge3_ptr;
+	std::vector<EdgeNode*> edge_ptrs;
+	ActivatePolyNode* act_poly_ptr;
 	PolyNode *prev, *next;
 	void coord2func(const Eigen::Vector3f &v1, const Eigen::Vector3f &v2, const Eigen::Vector3f &v3) {
 		Eigen::Vector3f edge1 = v1 - v2;
@@ -62,14 +81,10 @@ struct PolyNode {
 		}
 	}
 	void reset() {
-		if (edge1_ptr != nullptr) {
-			delete edge1_ptr;
-		}
-		if (edge2_ptr != nullptr) {
-			delete edge2_ptr;
-		}
-		if (edge3_ptr != nullptr) {
-			delete edge3_ptr;
+		for (int i = 0; i < edge_ptrs.size(); i++) {
+			if (edge_ptrs[i] != nullptr) {
+				delete edge_ptrs[i];
+			}
 		}
 	}
 };
@@ -100,3 +115,7 @@ struct ActivateEdgeNode {
 	void reset() {}
 };
 
+struct Interval {
+	double x_l;
+	std::vector<ActivateEdgeNode*> belongs;
+};

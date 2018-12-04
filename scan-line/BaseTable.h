@@ -11,6 +11,7 @@ public:
 
 	int transfer_to_pixel_pos(const Eigen::Vector3f& point, const std::string& mode);
 	int transfer_to_pixel_pos(const GLfloat val, const std::string& mode);
+	double transfer_to_real_pos(const int val, const std::string& mode);
 	BaseTable() {}
 	BaseTable(GLfloat _left, GLfloat _right, GLfloat _bottom, GLfloat _top, GLfloat _near, GLfloat _far, int _width, int _height) {
 		left_bound = _left;

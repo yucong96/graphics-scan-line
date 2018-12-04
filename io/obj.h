@@ -27,14 +27,11 @@ public:
 	Eigen::MatrixXf v_out_mat;
 	Eigen::MatrixXf vn_mat;
 	Eigen::MatrixXf vt_mat;
-	Eigen::MatrixXi f_mat;
-	Eigen::MatrixXi fn_mat;
+	std::vector<std::vector<int>> f_mat;
+	std::vector<std::vector<int>> fn_mat;
 #ifdef RAND_FACE_COLOR
 	Eigen::MatrixXi f_color;
 #endif
-
-	std::vector<double> face_areas;
-	std::vector<Eigen::Vector3f> face_normals;
 
 	Object() {
 		channel = 3;
