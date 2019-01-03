@@ -29,6 +29,7 @@ public:
 
 	ActivateTable4SLZ() {}
 	ActivateTable4SLZ(const StaticTable& static_table) : ActivateTable(static_table) {
+		background_color = { 0, 255, 0 };
 		z_buffer.resize(width);
 		frame_buffer.resize(width);
 		total_frame_buffer = new unsigned char[3 * height*width];

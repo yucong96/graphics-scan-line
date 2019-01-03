@@ -10,7 +10,7 @@ public:
 	Color background_color;
 
 	ActivateTable4ISL() {}
-	ActivateTable4ISL(const StaticTable& static_table) : ActivateTable(static_table) {}
+	ActivateTable4ISL(const StaticTable& static_table) : ActivateTable(static_table) { background_color = { 0, 255, 0 }; }
 	void traverse_display(StaticTable& static_table, const View &view);
 	void reset();
 };

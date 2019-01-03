@@ -12,9 +12,9 @@ int height = 600;
 View view;
 Object obj;
 StaticTable s_table;
-ActivateTable4ISL a_table;
+ActivateTable* a_table;
 
-void init(const string filepath)
+void init(const string filepath, const string type)
 {
 	Color background;
 	background.r = 0;
@@ -37,7 +37,7 @@ void init(const string filepath)
 		left = bottom / radio, right = top / radio;
 	}
 	GLfloat _near = 0, _far = 25;
-	view.set_radius(bound_box.maxCoeff() * 2.0);
+	view.set_radius(bound_box.maxCoeff() * 1.5);
 	view.set_alpha(50 * PI / 36);
 	view.set_phi(3 * PI / 36);
 	glMatrixMode(GL_PROJECTION);
@@ -54,9 +54,14 @@ void init(const string filepath)
 
 	s_table = StaticTable(left, right, bottom, top, _near, _far, width, height);
 	s_table.add_obj(obj);
-	a_table = ActivateTable4ISL(s_table);
-	a_table.background_color = background;
-	a_table.traverse_display(s_table, view);
+	if (type == "1") {
+		a_table = new ActivateTable4ISL(s_table);
+	}
+	if (type == "2") {
+		a_table = new ActivateTable4SLZ(s_table);
+	}
+	a_table->background_color = background;
+	a_table->traverse_display(s_table, view);
 	glFlush();
 	return;
 }
@@ -74,8 +79,8 @@ void set_view() {
 
 	s_table.reset();
 	s_table.add_obj(obj);
-	a_table.reset();
-	a_table.traverse_display(s_table, view);
+	a_table->reset();
+	a_table->traverse_display(s_table, view);
 	glFlush();
 }
 
@@ -107,21 +112,26 @@ void keyboard(unsigned char key, int x, int y)
 	//display();
 }
 
-int main(int argc, char *argv[])
-{
-	string filepath;
-	if (argc == 1) {
+int main(int argc, char *argv[]) {
+	if (argc < 2 || argc > 3) {
+		cerr << "format: graphics-scan-line.exe <type> <model_path>" << endl;
+		cerr << "type can be 1:interval-scan-line or 2:scan-ling-zbuffer" << endl;
+		return 1;
+	}
+	string filepath, type;
+	type = argv[1];
+	if (argc == 2) {
 		filepath = "models/cube.obj";
 	}
-	if (argc == 2) {
-		filepath = argv[1];
+	if (argc == 3) {
+		filepath = argv[2];
 	}
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGB | GLUT_SINGLE | GLUT_DEPTH);
 	glutInitWindowPosition(0, 0);
 	glutInitWindowSize(width, height);
 	glutCreateWindow("OpenGL 3D View");
-	init(filepath);
+	init(filepath, type);
 	glutDisplayFunc(display);
 	glutKeyboardFunc(keyboard);
 	glutMainLoop();
